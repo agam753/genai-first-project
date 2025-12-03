@@ -1,32 +1,33 @@
 from dotenv import load_dotenv
-import os
 from langchain_openai import ChatOpenAI
+from langchain.tools import tool
+from langchain_tavily import TavilySearch
 from langchain.agents import create_agent
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
 load_dotenv()
 
+@tool()
+def is_temperature_feasible_for_henry(temperature: float) -> bool:
+    """
+        Determines if the given temperature is feasible for Henry.
+        Args:
+            temperature (float): The temperature in celcius to evaluate.
+        Returns:
+            bool: True if the temperature is feasible for Henry, False otherwise.
+    """
+    return 18.0 <= temperature <= 30.0
+
+
 def main():
-    print("Hello from gen-ai-first-project!")
+    print("LangChain Function calling Example")
 
-    model = ChatOpenAI(model = "gpt-4o", temperature=0)
-    
-    agent = create_agent(
-        model=model,
-        tools=[],
-        )
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    tools = [TavilySearch(), is_temperature_feasible_for_henry]
 
-    response = model.invoke("What's the capital of France?")
-    print(response.content)
-
-    conversation = [
-        SystemMessage("You are a helpful assistant that translates English to French."),
-        HumanMessage("Translate: I love programming."),
-        AIMessage("J'adore la programmation."),
-        HumanMessage("Translate: I love building applications.")
-    ]
-
-    response = model.invoke(conversation)
-    print(response.content)
+    agent = create_agent(llm, tools, system_prompt="You are a helpful assistant expert in anaylzing weather data")
+    response = agent.invoke({"messages": [HumanMessage(content="Compare the weather in San Fransico and New Delhi today. Is the temperature in each location feasible for Henry?")]})
+    print("Agent Response:", response)
 
 if __name__ == "__main__":
     main()
