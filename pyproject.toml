@@ -8,6 +8,8 @@ dependencies = [
     "black>=25.11.0",
     "isort>=7.0.0",
     "langchain>=1.0.8",
+    "langchain-community>=0.4.1",
     "langchain-openai>=1.0.3",
+    "pypdf>=6.4.0",
     "python-dotenv>=1.2.1",
 ]
